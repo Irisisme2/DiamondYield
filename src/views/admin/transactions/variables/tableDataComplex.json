@@ -1,0 +1,26 @@
+[
+  {
+    "date": "12 Jul 2023, 14:32",
+    "type": "Staking",
+    "amount": "150 UBIT",
+    "status": "Completed"
+  },
+  {
+    "date": "15 Jul 2023, 09:21",
+    "type": "Unstaking",
+    "amount": "50 UBIT",
+    "status": "In Progress"
+  },
+  {
+    "date": "18 Jul 2023, 17:45",
+    "type": "Reward",
+    "amount": "10 UBIT",
+    "status": "Completed"
+  },
+  {
+    "date": "20 Jul 2023, 12:00",
+    "type": "Staking",
+    "amount": "200 UBIT",
+    "status": "Failed"
+  }
+]
