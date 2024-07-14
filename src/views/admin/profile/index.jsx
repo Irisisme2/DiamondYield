@@ -18,87 +18,233 @@ import {
   ModalCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
+import Activestakes from "views/admin/profile/components/Activestakes";
+import AverageAPYChart from "views/admin/profile/components/AverageAPYChart";
+import PastStakes from "views/admin/profile/components/PastStakes";
+import TotalEarningsSummary from "views/admin/profile/components/TotalEarningsSummary";
+import ActiveVsClosedStakes from "views/admin/profile/components/ActiveVsClosedStakes";
+import Property1 from "assets/img/nfts/btc1.jpg";
+import Property2 from "assets/img/nfts/eth.png";
+import Property3 from "assets/img/nfts/ada.png";
+import Property4 from "assets/img/nfts/dot.png";
+import Property5 from "assets/img/nfts/bnb.png";
+import Property6 from "assets/img/nfts/sql.png";
+import Banner from "views/admin/profile/components/Banner";
+import Card from "components/card/Card.js";
+import LastStakes from "views/admin/profile/components/Laststakes"; // Import komponentu LastStakes
 
-import Recognition from "assets/img/rewards/Recognition.png";
-import Activity from "assets/img/rewards/Activity.png";
-import Investment from "assets/img/rewards/Investment.png";
-
-import Card from "components/card/Card";
-
-const rewardsData = [
+const stakingPools = [
   {
     id: 1,
-    name: "Bonus for Activity",
-    description: "Earn rewards by participating actively.",
-    amount: "100 USD",
-    image: Activity,
+    name: 'ETH Staking Pool',
+    description: 'Earn rewards by staking Ethereum tokens.',
+    apy: '5%',
+    currentRates: '1 ETH = 3450 USD',
+    options: 'Weekly payouts',
+    image: Property2,
+    formFields: [
+      { label: 'ETH Amount', type: 'number', placeholder: 'Enter ETH amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
   },
   {
     id: 2,
-    name: "Investment Return",
-    description: "Get returns on your investment.",
-    amount: "250 USD",
-    image: Investment,
+    name: 'BTC Staking Pool',
+    description: 'Stake Bitcoin for monthly rewards.',
+    apy: '7%',
+    currentRates: '1 BTC = 58 000 USD',
+    options: 'Monthly payouts',
+    image: Property1,
+    formFields: [
+      { label: 'BTC Amount', type: 'number', placeholder: 'Enter BTC amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
   },
   {
     id: 3,
-    name: "Recognition Bonus",
-    description: "Recognition award",
-    amount: "150 USD",
-    image: Recognition,
+    name: 'ADA Staking Pool',
+    description: 'Stake ADA tokens and earn ADA rewards.',
+    apy: '6.5%',
+    currentRates: '1 ADA = 0,41 USD',
+    options: 'Monthly payouts',
+    image: Property3,
+    formFields: [
+      { label: 'ADA Amount', type: 'number', placeholder: 'Enter ADA amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
   },
-  // Dodaj więcej przykładowych nagród według potrzeb
+  {
+    id: 4,
+    name: 'DOT Staking Pool',
+    description: 'Stake DOT tokens for weekly rewards.',
+    apy: '8%',
+    currentRates: '1 DOT = 6,09 USD',
+    options: 'Weekly payouts',
+    image: Property4,
+    formFields: [
+      { label: 'DOT Amount', type: 'number', placeholder: 'Enter DOT amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
+  },
+  {
+    id: 5,
+    name: 'BNB Staking Pool',
+    description: 'Earn BNB rewards by staking BNB tokens.',
+    apy: '6%',
+    currentRates: '1 BNB = 533,98 USD',
+    options: 'Monthly payouts',
+    image: Property5,
+    formFields: [
+      { label: 'BNB Amount', type: 'number', placeholder: 'Enter BNB amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
+  },
+  {
+    id: 6,
+    name: 'SOL Staking Pool',
+    description: 'Stake SOL tokens for daily rewards.',
+    apy: '9%',
+    currentRates: '1 SOL = 136,82 USD',
+    options: 'Daily payouts',
+    image: Property6,
+    formFields: [
+      { label: 'SOL Amount', type: 'number', placeholder: 'Enter SOL amount' },
+      { label: 'Staking Period', type: 'select', options: ['1 month', '3 months', '6 months'] }
+    ]
+  },
 ];
 
-const RewardsHistory = () => {
+const Marketplace = () => {
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedReward, setSelectedReward] = useState(null);
+  const [selectedPool, setSelectedPool] = useState(null);
+  const [formData, setFormData] = useState({
+    amount: "",
+    period: "1 month"
+  });
+  const [lastStakes, setLastStakes] = useState([]);
 
-  const handleClaimReward = (rewardId) => {
-    setSelectedReward(rewardId);
+  const handleStakeClick = (poolId) => {
+    setSelectedPool(poolId);
     onOpen();
   };
 
-  const handleClaim = () => {
-    // Logika do obsługi odebrania nagrody
-    console.log(`Claiming reward with ID: ${selectedReward}`);
-    onClose(); // Zamknięcie modala po odebraniu nagrody
+  const handleStake = () => {
+    const pool = stakingPools.find(pool => pool.id === selectedPool);
+    const newStake = {
+      poolName: pool.name,
+      amount: formData.amount,
+      stakingPeriod: formData.period
+    };
+    setLastStakes([...lastStakes, newStake]);
+    onClose();
+    setFormData({ amount: "", period: "1 month" });
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const renderFormFields = () => {
+    if (!selectedPool) return null;
+
+    const pool = stakingPools.find(pool => pool.id === selectedPool);
+
+    return (
+      <>
+        {pool.formFields.map((field) => (
+          <Flex key={field.label} mb="0.5rem">
+            <Text minW="120px">{field.label}:</Text>
+            {field.type === 'number' ? (
+              <input
+                type="number"
+                name="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                placeholder={field.placeholder}
+                style={{ marginRight: '10px' }}
+              />
+            ) : (
+              <Select
+                name="period"
+                value={formData.period}
+                onChange={handleChange}
+                placeholder={field.placeholder}
+                style={{ marginRight: '10px' }}
+              >
+                {field.options.map(option => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </Select>
+            )}
+          </Flex>
+        ))}
+      </>
+    );
   };
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <Flex justify="space-between" align="flex-start" wrap="wrap" mb="20px">
+        {/* Kwadraty po lewej */}
+        <Box width={{ base: "100%", md: "calc(50% - 10px)", xl: "calc(33.33% - 10px)" }} mb={{ base: "20px", md: 0 }}>
+          <TotalEarningsSummary />
+        </Box>
+        <Box width={{ base: "100%", md: "calc(50% - 10px)", xl: "calc(33.33% - 10px)" }} mb={{ base: "20px", md: 0 }}>
+          <AverageAPYChart />
+        </Box>
+        <Box width={{ base: "100%", md: "calc(50% - 10px)", xl: "calc(33.33% - 10px)" }} mb={{ base: "20px", md: 0 }}>
+          <ActiveVsClosedStakes />
+        </Box>
+        {/* Kwadraty po prawej */}
+        <Box width={{ base: "200%", md: "50%", xl: "60.66%" }}>
+          <Activestakes />
+        </Box>
+        <Box width={{ base: "100%", md: "50%", xl: "33.33%" }}>
+          <PastStakes />
+        </Box>
+      </Flex>
+
+      {/* Dodana sekcja pod istniejącymi komponentami */}
       <Grid
         templateColumns={{ base: "1fr", xl: "1fr 0.46fr" }}
         gap={{ base: "20px", xl: "20px" }}
         display="grid"
       >
         <Flex flexDirection="column" alignItems="left">
-          <Box mt="40px"> {/* Dodatkowy margines górny */}
+          <Banner style={{ maxWidth: "100%", margin: "auto" }} /> {/* Zaktualizowany baner */}
+          <Box mt="40px">
             <SimpleGrid columns={{ base: 1, md: 3 }} gap="20px">
-              {rewardsData.map((reward) => (
+              {stakingPools.map(pool => (
                 <Card
-                  key={reward.id}
+                  key={pool.id}
                   height="600px"
                   display="flex"
                   flexDirection="column"
                   justifyContent="space-between"
                   p="20px"
                 >
-                  <Image src={reward.image} alt={reward.name} height="330px" objectFit="cover" />
+                  <Image src={pool.image} alt={pool.name} height="330px" objectFit="cover" />
                   <Flex align="center" mt="20px">
                     <Text color={textColor} fontSize="lg" fontWeight="bold">
-                      {reward.name}
+                      {pool.name}
                     </Text>
                   </Flex>
                   <Text mt="10px" color={textColor} fontSize="md">
-                    {reward.description}
+                    {pool.description}
                   </Text>
                   <Text mt="10px" color={textColor} fontSize="md">
-                    <strong>Amount:</strong> {reward.amount}
+                    <strong>APY:</strong> {pool.apy}
                   </Text>
-                  <Button mt="10px" colorScheme="blue" onClick={() => handleClaimReward(reward.id)} w="full">
-                    Claim
+                  <Text mt="10px" color={textColor} fontSize="md">
+                    <strong>Current Rates:</strong> {pool.currentRates}
+                  </Text>
+                  <Text mt="10px" color={textColor} fontSize="md">
+                    <strong>Options:</strong> {pool.options}
+                  </Text>
+                  <Button mt="10px" colorScheme="blue" onClick={() => handleStakeClick(pool.id)} w="full">
+                    Stake
                   </Button>
                 </Card>
               ))}
@@ -106,26 +252,25 @@ const RewardsHistory = () => {
           </Box>
         </Flex>
 
-        {/* Pusty placeholder po prawej stronie */}
-        <Box gridColumn="2 / 3"></Box>
+        {/* Komponent LastStakes po prawej stronie */}
+        <Flex direction="column" gridColumn="2 / 3" alignItems="center">
+          <LastStakes lastStakes={lastStakes} />
+        </Flex>
       </Grid>
 
-      {/* Modal do odebrania nagrody */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Claim Reward</ModalHeader>
+          <ModalHeader>Stake in {stakingPools.find(pool => pool.id === selectedPool)?.name}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>Are you sure you want to claim this reward?</Text>
+            {renderFormFields()}
           </ModalBody>
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={onClose}>
               Close
             </Button>
-            <Button variant="ghost" onClick={handleClaim}>
-              Claim
-            </Button>
+            <Button variant="ghost" onClick={handleStake}>Stake</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -133,4 +278,4 @@ const RewardsHistory = () => {
   );
 };
 
-export default RewardsHistory;
+export default Marketplace;
