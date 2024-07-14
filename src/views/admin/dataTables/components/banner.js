@@ -35,7 +35,7 @@ export default function Banner() {
         }}
         lineHeight={{ base: "35px", md: "42px" }}
       >
-        Stake, earn and have fun
+        Explore new Liquidities
       </Text>
     </Flex>
   );
