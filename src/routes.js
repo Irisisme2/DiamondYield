@@ -7,6 +7,8 @@ import {
   MdTimeline,
   MdMonetizationOn,
   MdHistory,
+  MdTrendingUp,
+  MdOutlineBarChart,
   MdPerson
 } from "react-icons/md";
 
@@ -32,7 +34,7 @@ const routes = [
     component: MainDashboard,
   },
   {
-    name: 'Staking Pools',
+    name: 'Wallet',
     layout: '/admin',
     path: '/marketplace',
     icon: <MdAccountBalanceWallet size='20px' color='inherit' />,
@@ -40,24 +42,24 @@ const routes = [
     secondary: true,
   },
   {
-    name: 'My Staking',
+    name: 'Liquidity Mining',
     layout: '/admin',
-    icon: <MdTimeline size='20px' color='inherit' />,
+    icon: <MdOutlineBarChart  size='20px' color='inherit' />,
     path: '/data-tables',
     component: DataTables,
   },
   {
-    name: 'Rewards',
+    name: 'Staking',
     layout: '/admin',
     path: '/profile',
     icon: <MdMonetizationOn size='20px' color='inherit' />,
     component: Profile,
   },
   {
-    name: 'Transactions',
+    name: 'YieldFarming',
     layout: '/admin',
     path: '/transactions',
-    icon: <MdHistory size='20px' color='inherit' />,
+    icon: <MdTrendingUp  size='20px' color='inherit' />,
     component: transactions,
   },
 ];

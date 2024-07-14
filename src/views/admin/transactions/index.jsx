@@ -1,6 +1,4 @@
-// Transactions.js
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -213,6 +211,21 @@ const Transactions = () => {
     status: "",
     token: "",
   });
+  const [coinPrices, setCoinPrices] = useState({ USD: null, BTC: null });
+
+  useEffect(() => {
+    const fetchCoinPrices = async () => {
+      try {
+        const response = await fetch("https://api.ubitscan.com/api?module=stats&action=coinprice");
+        const data = await response.json();
+        setCoinPrices({ USD: data.result.ethusd, BTC: data.result.ethbtc });
+      } catch (error) {
+        console.error("Error fetching coin prices:", error);
+      }
+    };
+
+    fetchCoinPrices();
+  }, []);
 
   const handleFilter = () => {
     let filteredData = [...transactions];
@@ -323,6 +336,12 @@ const Transactions = () => {
           <Button onClick={handleFilter}>Filter</Button>
           <Button onClick={handleReset}>Reset</Button>
         </Grid>
+      </Box>
+
+      <Box mb="20px">
+        <Text color={textColor} fontSize="2xl">
+          Current ETH Price: ${coinPrices.USD} / {coinPrices.BTC} BTC
+        </Text>
       </Box>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing="20px">

@@ -14,29 +14,29 @@ import Card from 'components/card/Card';
 
 // Sample data
 const dailyData = [
-  { date: '2022-07-01', rewards: 100 },
-  { date: '2022-07-02', rewards: 120 },
-  { date: '2022-07-03', rewards: 90 },
-  { date: '2022-07-04', rewards: 80 },
-  { date: '2022-07-05', rewards: 110 },
-  { date: '2022-07-06', rewards: 130 },
-  { date: '2022-07-07', rewards: 150 },
+  { date: '2022-07-01', Earnings: 100 },
+  { date: '2022-07-02', Earnings: 120 },
+  { date: '2022-07-03', Earnings: 90 },
+  { date: '2022-07-04', Earnings: 80 },
+  { date: '2022-07-05', Earnings: 110 },
+  { date: '2022-07-06', Earnings: 130 },
+  { date: '2022-07-07', Earnings: 150 },
 ];
 
 const weeklyData = [
-  { week: 'Week 1', rewards: 750 },
-  { week: 'Week 2', rewards: 800 },
-  { week: 'Week 3', rewards: 850 },
-  { week: 'Week 4', rewards: 900 },
+  { week: 'Week 1', Earnings: 7350 },
+  { week: 'Week 2', Earnings: 8400 },
+  { week: 'Week 3', Earnings: 850 },
+  { week: 'Week 4', Earnings: 1900 },
 ];
 
 const monthlyData = [
-  { month: 'Jan', rewards: 3000 },
-  { month: 'Feb', rewards: 3200 },
-  { month: 'Mar', rewards: 3500 },
-  { month: 'Apr', rewards: 3800 },
-  { month: 'May', rewards: 4000 },
-  { month: 'Jun', rewards: 4200 },
+  { month: 'Jan', Earnings: 33000 },
+  { month: 'Feb', Earnings: 3200 },
+  { month: 'Mar', Earnings: 2500 },
+  { month: 'Apr', Earnings: 13800 },
+  { month: 'May', Earnings: 4000 },
+  { month: 'Jun', Earnings: 42300 },
 ];
 
 const RewardChart = () => {
@@ -66,7 +66,7 @@ const RewardChart = () => {
     <Card w="100%" p="20px">
       <Flex justify="space-between" align="center" mb="20px">
         <Text fontSize="lg" fontWeight="bold" color={textColor}>
-          Earned Rewards
+          Earnings
         </Text>
         <Select defaultValue="daily" onChange={(e) => handlePeriodChange(e.target.value)} w="120px">
           <option value="daily">Daily</option>
@@ -81,7 +81,7 @@ const RewardChart = () => {
           <YAxis stroke={textColor} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="rewards" fill={barColors[0]} />
+          <Bar dataKey="Earnings" fill={barColors[0]} />
         </BarChart>
       </ResponsiveContainer>
     </Card>

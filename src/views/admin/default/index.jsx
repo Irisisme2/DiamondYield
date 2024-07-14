@@ -13,28 +13,17 @@ import {
   SimpleGrid,
   useColorModeValue,
 } from "@chakra-ui/react";
-// Assets
-import Usa from "assets/img/dashboards/usa.png";
-// Custom components
-import MiniCalendar from "components/calendar/MiniCalendar";
 import MiniStatistics from "components/card/MiniStatistics";
 import IconBox from "components/icons/IconBox";
 import React, { useState, useEffect } from 'react';
-import { MdBarChart, MdAttachMoney, MdAddTask, MdFileCopy, MdTrendingUp, MdAccountBalanceWallet } from "react-icons/md";
-import CheckTable from "views/admin/default/components/CheckTable";
-import LastTransactions from "views/admin/default/components/LastTransactions";
-import DailyTraffic from "views/admin/default/components/DailyTraffic";
+import { MdBarChart, MdAttachMoney, MdAddTask, MdFileCopy, MdTrendingUp, MdAccountBalanceWallet,  MdMonetizationOn,MdTimeline, MdSecurity, } from "react-icons/md";
+import ActiveStakes from "views/admin/default/components/Activestakes";
+import Loans from "views/admin/default/components/Loans";
 import PieCard from "views/admin/default/components/PieCard";
-import Tasks from "views/admin/default/components/Tasks";
+import Liquidity from "views/admin/default/components/Liquidity";
 import Staking from "views/admin/default/components/Staking";
-import WeeklyRevenue from "views/admin/default/components/WeeklyRevenue";
-import {
-  columnsDataCheck,
-  columnsDataComplex,
-} from "views/admin/default/variables/columnsData";
-import tableDataCheck from "views/admin/default/variables/tableDataCheck.json";
-import tableDataComplex from "views/admin/default/variables/tableDataComplex.json";
-import Web3 from 'web3';
+import Earnings from "views/admin/default/components/WeeklyRevenue";
+import TopPerformingAssets from "views/admin/default/components/TopPerformingAssets";
 
 import axios from 'axios';
 
@@ -42,75 +31,11 @@ export default function UserReports() {
   const brandColor = useColorModeValue('brand.500', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
 
-  const [accountBalance, setAccountBalance] = useState(0); // Initial state for account balance
-
-  useEffect(() => {
-    async function fetchAccountBalance(address) {
-      try {
-        const response = await axios.get(`https://ubitscan.io/api?module=account&action=balance&address=${address}`);
-
-        if (response.data && response.data.result) {
-          const balanceInWei = response.data.result;
-          const balanceInUBIT = convertWeiToUBIT(balanceInWei);
-          setAccountBalance(balanceInUBIT);
-        }
-      } catch (error) {
-        console.error('Błąd podczas pobierania salda:', error);
-      }
-    }
-
-    async function loadMetamask() {
-      // Sprawdzanie czy Metamask jest zainstalowany
-      if (window.ethereum) {
-        const web3 = new Web3(window.ethereum);
-
-        try {
-          // Prośba o dostęp do konta Metamask
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-          // Pobieranie adresu aktualnie zalogowanego użytkownika
-          const accounts = await web3.eth.getAccounts();
-
-          if (accounts.length > 0) {
-            const userAddress = accounts[0];
-            fetchAccountBalance(userAddress);
-          } else {
-            console.error('Nie znaleziono konta Metamask.');
-          }
-        } catch (error) {
-          console.error('Brak pozwolenia na dostęp do konta Metamask:', error);
-        }
-      } else {
-        console.error('Metamask nie jest zainstalowany w przeglądarce.');
-      }
-    }
-
-    loadMetamask();
-  }, []);
-
-  function convertWeiToUBIT(weiAmount) {
-    return weiAmount / 10**18; // Example conversion assuming 1 UBIT = 1e18 Wei
-  }
-
   return (
-    <Box pt={{ base: '130px', md: '80px', xl: '80px' }}>
-      <SimpleGrid
-        columns={{ base: 1, md: 2, lg: 3, '2xl': 6 }}
-        gap='20px'
-        mb='20px'
-      >
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w='56px'
-              h='56px'
-              bg={boxBg}
-              icon={<Icon w='32px' h='32px' as={MdAccountBalanceWallet} color={brandColor} />}
-            />
-          }
-          name='Account Balance'
-          value={`${accountBalance} UBIT`}
-        />
+    <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      {/* Mini Statistics */}
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3, "2xl": 6 }} gap='20px' mb='20px'>
+        {/* Total Asset Value */}
         <MiniStatistics
           startContent={
             <IconBox
@@ -120,51 +45,99 @@ export default function UserReports() {
               icon={<Icon w='32px' h='32px' as={MdBarChart} color={brandColor} />}
             />
           }
-          name='Total Staked Amount'
-          value='800 UBIT'
+          name='Total Asset Value'
+          value='$1,234,567'
         />
+
+        {/* Earnings Summary */}
         <MiniStatistics
           startContent={
             <IconBox
               w='56px'
               h='56px'
               bg={boxBg}
-              icon={<Icon w='32px' h='32px' as={MdTrendingUp} color={brandColor} />}
+              icon={<Icon w='32px' h='32px' as={MdAttachMoney} color={brandColor} />}
             />
           }
-          name='Total Rewards'
-          value='200 UBIT'
+          name='Earnings Summary'
+          value='$350.4'
         />
+
+        {/* Yield Farming ROI */}
         <MiniStatistics
-          endContent={
-            <Flex me='-16px' mt='10px'>
-              <FormLabel htmlFor='apy'>
-                <Avatar src={Usa} />
-              </FormLabel>
-              <Select id='apy' variant='mini' mt='5px' me='0px' defaultValue='usd'>
-                <option value='usd'>USD</option>
-                <option value='eur'>EUR</option>
-                <option value='gba'>GBA</option>
-              </Select>
-            </Flex>
+          startContent={
+            <IconBox
+              w='56px'
+              h='56px'
+              bg={boxBg}
+              icon={<Icon w='28px' h='28px' as={MdTrendingUp}  color={brandColor} />}
+            />
           }
-          name='APY'
-          value='15%'
+          name='Yield Farming ROI'
+          value='+15%'
         />
+
+        {/* Staking Rewards */}
+        <MiniStatistics
+          startContent={
+            <IconBox
+            w='56px'
+            h='56px'
+            bg={boxBg}
+            icon={<Icon w='32px' h='32px' as={MdMonetizationOn} color={brandColor} />}
+          />
+        }
+          name='Staking Rewards'
+          value='$120.50'
+        />
+
+        {/* Historical Performance */}
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w='56px'
+              h='56px'
+              bg={boxBg}
+              icon={<Icon w='32px' h='32px' as={MdTimeline} color={brandColor} />}
+            />
+          }
+          name='Historical Performance'
+          value='High'
+        />
+
+        {/* Security Level */}
+        <MiniStatistics
+          startContent={
+            <IconBox
+              w='56px'
+              h='56px'
+              bg={boxBg}
+              icon={<Icon w='32px' h='32px' as={MdSecurity} color={brandColor} />}
+            />
+          }
+          name='Security Level'
+          value='High'
+        />
+      </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
+        <Staking />
+        <Box p='15px' borderRadius='md'>
+          <Box mb='20px'>
+            <Earnings />
+          </Box>
+          <PieCard />
+        </Box>
       </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
-        <Staking />
-        <WeeklyRevenue />
+        <ActiveStakes />
+        <Liquidity />
       </SimpleGrid>
 
-      <SimpleGrid columns={{ base: 1, md: 1, xl: 2 }} gap='20px' mb='20px'>
-        <LastTransactions columnsData={columnsDataComplex} tableData={tableDataComplex} />
-        <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px'>
-          <DailyTraffic />
-          <PieCard />
-        </SimpleGrid>
+      <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
+        <TopPerformingAssets />
+        <Loans />
       </SimpleGrid>
     </Box>
   );
-}
+};

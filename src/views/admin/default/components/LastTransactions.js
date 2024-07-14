@@ -1,171 +1,168 @@
+import React, { useState, useEffect } from "react";
 import {
-  Flex,
-  Table,
-  Icon,
-  Tbody,
-  Td,
+  Box,
   Text,
-  Th,
-  Thead,
-  Tr,
+  SimpleGrid,
+  Grid,
+  GridItem,
   useColorModeValue,
+  Image,
+  Input,
+  Select,
+  Button,
 } from "@chakra-ui/react";
-import React, { useMemo } from "react";
-import {
-  useGlobalFilter,
-  usePagination,
-  useSortBy,
-  useTable,
-} from "react-table";
-
-// Custom components
 import Card from "components/card/Card";
-import Menu from "components/menu/MainMenu";
+import ColumnsTable from "views/admin/default/variables/columnstable";
+import { columnsDataComplex } from "views/admin/default/variables/columnsData";
 
-// Assets
-import { MdCheckCircle, MdCancel, MdOutlineError, MdPending } from "react-icons/md";
-
-export default function ColumnsTable(props) {
-  const { columnsData, tableData } = props;
-
-  const columns = useMemo(() => columnsData, [columnsData]);
-  const data = useMemo(() => tableData, [tableData]);
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-    },
-    useGlobalFilter,
-    useSortBy,
-    usePagination
-  );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    initialState,
-  } = tableInstance;
-  initialState.pageSize = 5;
-
+const Transactions = () => {
   const textColor = useColorModeValue("secondaryGray.900", "white");
-  const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const [transactions, setTransactions] = useState([]);
+  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [filterOptions, setFilterOptions] = useState({
+    fromDate: "",
+    toDate: "",
+    minAmount: "",
+    maxAmount: "",
+    status: "",
+    token: "",
+  });
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("https://api.ubitscan.com/api?module=transaction&action=gettxinfo&txhash={transactionHash}");
+        const data = await response.json();
+        setTransactions(data.result);
+        setFilteredTransactions(data.result);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  const handleFilter = () => {
+    let filteredData = [...transactions];
+
+    if (filterOptions.fromDate && filterOptions.toDate) {
+      filteredData = filteredData.filter(
+        (transaction) =>
+          new Date(transaction.date) >= new Date(filterOptions.fromDate) &&
+          new Date(transaction.date) <= new Date(filterOptions.toDate)
+      );
+    }
+
+    if (filterOptions.minAmount) {
+      filteredData = filteredData.filter(
+        (transaction) => parseFloat(transaction.amount) >= parseFloat(filterOptions.minAmount)
+      );
+    }
+
+    if (filterOptions.maxAmount) {
+      filteredData = filteredData.filter(
+        (transaction) => parseFloat(transaction.amount) <= parseFloat(filterOptions.maxAmount)
+      );
+    }
+
+    if (filterOptions.status) {
+      filteredData = filteredData.filter(
+        (transaction) => transaction.status.toLowerCase() === filterOptions.status.toLowerCase()
+      );
+    }
+
+    if (filterOptions.token) {
+      filteredData = filteredData.filter(
+        (transaction) => transaction.token.toLowerCase() === filterOptions.token.toLowerCase()
+      );
+    }
+
+    setFilteredTransactions(filteredData);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFilterOptions({ ...filterOptions, [name]: value });
+  };
+
+  const handleReset = () => {
+    setFilterOptions({
+      fromDate: "",
+      toDate: "",
+      minAmount: "",
+      maxAmount: "",
+      status: "",
+      token: "",
+    });
+    setFilteredTransactions(transactions);
+  };
+
   return (
-    <Card
-      direction='column'
-      w='100%'
-      px='0px'
-      overflowX={{ sm: "scroll", lg: "hidden" }}>
-      <Flex px='25px' justify='space-between' mb='10px' align='center'>
-        <Text
-          color={textColor}
-          fontSize='22px'
-          fontWeight='700'
-          lineHeight='100%'>
-          Last Transactions
+    <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+      <Box mb="20px">
+        <Grid
+          templateColumns={{ base: "1fr", md: "1fr 1fr 1fr 1fr" }}
+          gap={{ base: "10px", md: "10px" }}
+        >
+          <Input
+            type="date"
+            name="fromDate"
+            value={filterOptions.fromDate}
+            onChange={handleChange}
+            placeholder="From Date"
+          />
+          <Input
+            type="date"
+            name="toDate"
+            value={filterOptions.toDate}
+            onChange={handleChange}
+            placeholder="To Date"
+          />
+          <Input
+            type="number"
+            name="minAmount"
+            value={filterOptions.minAmount}
+            onChange={handleChange}
+            placeholder="Min Amount"
+          />
+          <Input
+            type="number"
+            name="maxAmount"
+            value={filterOptions.maxAmount}
+            onChange={handleChange}
+            placeholder="Max Amount"
+          />
+          <Select name="status" value={filterOptions.status} onChange={handleChange}>
+            <option value="">Select Status</option>
+            <option value="completed">Completed</option>
+            <option value="in progress">In Progress</option>
+            <option value="failed">Failed</option>
+          </Select>
+          <Select name="token" value={filterOptions.token} onChange={handleChange}>
+            <option value="">Select Token</option>
+            <option value="ubit">UBIT</option>
+            <option value="eth">ETH</option>
+            <option value="btc">BTC</option>
+            <option value="ada">ADA</option>
+            <option value="dot">DOT</option>
+            <option value="bnb">BNB</option>
+            <option value="sol">SOL</option>
+          </Select>
+          <Button onClick={handleFilter}>Filter</Button>
+          <Button onClick={handleReset}>Reset</Button>
+        </Grid>
+      </Box>
+
+      <Box mb="20px">
+        <Text color={textColor} fontSize="2xl">
+          Transactions
         </Text>
-        <Menu />
-      </Flex>
-      <Table {...getTableProps()} variant='simple' color='gray.500' mb='24px'>
-        <Thead>
-          {headerGroups.map((headerGroup, index) => (
-            <Tr {...headerGroup.getHeaderGroupProps()} key={index}>
-              {headerGroup.headers.map((column, index) => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  pe='10px'
-                  key={index}
-                  borderColor={borderColor}>
-                  <Flex
-                    justify='space-between'
-                    align='center'
-                    fontSize={{ sm: "10px", lg: "12px" }}
-                    color='gray.400'>
-                    {column.render("Header")}
-                  </Flex>
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {page.map((row, index) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()} key={index}>
-                {row.cells.map((cell, index) => {
-                  let data = "";
-                  if (cell.column.Header === "DATE&TIME") {
-                    data = (
-                      <Text color={textColor} fontSize='sm' fontWeight='700'>
-                        {cell.value}
-                      </Text>
-                    );
-                  } else if (cell.column.Header === "STATUS") {
-                    data = (
-                      <Flex align='center'>
-                        <Icon
-                          w='24px'
-                          h='24px'
-                          me='5px'
-                          color={
-                            cell.value === "Completed"
-                              ? "green.500"
-                              : cell.value === "In Progress"
-                              ? "orange.500"
-                              : cell.value === "Failed"
-                              ? "red.500"
-                              : null
-                          }
-                          as={
-                            cell.value === "Completed"
-                              ? MdCheckCircle
-                              : cell.value === "In Progress"
-                              ? MdPending
-                              : cell.value === "Failed"
-                              ? MdCancel
-                              : null
-                          }
-                        />
-                        <Text color={textColor} fontSize='sm' fontWeight='700'>
-                          {cell.value}
-                        </Text>
-                      </Flex>
-                    );
-                  } else if (cell.column.Header === "TRANSACTION TYPE") {
-                    data = (
-                      <Text color={textColor} fontSize='sm' fontWeight='700'>
-                        {cell.value}
-                      </Text>
-                    );
-                  } else if (cell.column.Header === "AMOUNT") {
-                    data = (
-                      <Text color={textColor} fontSize='sm' fontWeight='700'>
-                        {cell.value}
-                      </Text>
-                    );
-                  }
-                  return (
-                    <Td
-                      {...cell.getCellProps()}
-                      key={index}
-                      fontSize={{ sm: "14px" }}
-                      maxH='30px !important'
-                      py='8px'
-                      minW={{ sm: "150px", md: "200px", lg: "auto" }}
-                      borderColor='transparent'>
-                      {data}
-                    </Td>
-                  );
-                })}
-              </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-    </Card>
+      </Box>
+
+      <ColumnsTable columnsData={columnsDataComplex} tableData={filteredTransactions} />
+    </Box>
   );
-}
+};
+
+export default Transactions;

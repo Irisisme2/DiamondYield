@@ -1,87 +1,124 @@
-import React from 'react';
-import { Box, Flex, Text, Select, useColorModeValue } from '@chakra-ui/react';
-import Card from 'components/card/Card';
-import PieChart from 'components/charts/PieChart';
-import { pieChartData, pieChartOptions } from 'variables/charts'; 
+import React, { useState } from "react";
+import { Box, Text, Select } from "@chakra-ui/react";
+import Card from "components/card/Card";
+import { Pie } from 'react-chartjs-2';
 
-export default function TokenDistribution(props) {
-  const { ...rest } = props;
+const Portfolio = () => {
+  // Przykładowe dane dla różnych okresów czasu
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly'); // Domyślnie miesięczne dane
 
-  // Chakra Color Mode
-  const textColor = useColorModeValue('secondaryGray.900', 'white');
-  const cardColor = useColorModeValue('white', 'navy.700');
-  const cardShadow = useColorModeValue(
-    '0px 18px 40px rgba(112, 144, 176, 0.12)',
-    'unset'
-  );
+  const monthlyData = {
+    labels: ["Yield Farming", "Liquidity Pools", "DeFi Assets"],
+    datasets: [
+      {
+        label: "Total ",
+        data: [23, 16, 55],
+        backgroundColor: ["#6CB2EB", "#4A5568", "#805AD5"], // Kolory w odcieniach bardziej kojarzących się z DeFi
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  const yearlyData = {
+    labels: ["Yield Farming", "Liquidity Pools", "DeFi Assets"],
+    datasets: [
+      {
+        label: "Total ",
+        data: [315, 60, 240],
+        backgroundColor: ["#6CB2EB", "#4A5568", "#805AD5"], // Kolory w odcieniach bardziej kojarzących się z DeFi
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  const dailyData = {
+    labels: ["Yield Farming", "Liquidity Pools", "DeFi Assets"],
+    datasets: [
+      {
+        label: "Total ",
+        data: [10, 5, 8],
+        backgroundColor: ["#6CB2EB", "#4A5568", "#805AD5"], // Kolory w odcieniach bardziej kojarzących się z DeFi
+        hoverOffset: 4,
+      },
+    ],
+  };
+
+  // Opcje dla wykresu kołowego
+  const options = {
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(tooltipItem) {
+            return `${tooltipItem.label}: $${tooltipItem.raw}`;
+          }
+        }
+      }
+    }
+  };
+
+  // Handler zmiany okresu czasu
+  const handlePeriodChange = (event) => {
+    setSelectedPeriod(event.target.value);
+  };
+
+  // Wybór danych na podstawie wybranego okresu
+  let data;
+  switch (selectedPeriod) {
+    case 'monthly':
+      data = monthlyData;
+      break;
+    case 'yearly':
+      data = yearlyData;
+      break;
+    case 'daily':
+      data = dailyData;
+      break;
+    default:
+      data = monthlyData;
+  }
 
   return (
-    <Card p="20px" align="center" direction="column" w="100%" {...rest}>
-      <Flex
-        px={{ base: '0px', '2xl': '10px' }}
-        justifyContent="space-between"
-        alignItems="center"
-        w="100%"
-        mb="8px"
+    <Card p="20px" mb="20px">
+      <Text fontSize="xl" fontWeight="bold" mb="4">
+        Wallet Distribution
+      </Text>
+      <Select
+        fontSize="sm"
+        variant="subtle"
+        defaultValue="monthly"
+        width="unset"
+        fontWeight="700"
+        mb="4"
+        onChange={handlePeriodChange}
       >
-        <Text color={textColor} fontSize="md" fontWeight="600" mt="4px">
-          Token Distribution
-        </Text>
-        <Select
-          fontSize="sm"
-          variant="subtle"
-          defaultValue="monthly"
-          width="unset"
-          fontWeight="700"
-        >
-          <option value="staked">Staked</option>
-          <option value="unstaked">Unstaked</option>
-        </Select>
-      </Flex>
-
-      <PieChart
-        h="100%"
-        w="100%"
-        chartData={pieChartData} // Use pieChartData imported from charts.js
-        chartOptions={pieChartOptions} // Use pieChartOptions imported from charts.js
-      />
-
-      {/* Example Card to show percentages */}
-      <Card
-        bg={cardColor}
-        flexDirection="row"
-        boxShadow={cardShadow}
-        w="100%"
-        p="15px"
-        px="20px"
-        mt="15px"
-        mx="auto"
-      >
-        {pieChartData.map((percentage, index) => (
-          <Flex key={index} direction="column" py="5px" me={index === 0 ? '10px' : 0}>
-            <Flex align="center">
-              <Box
-                h="8px"
-                w="8px"
-                bg={pieChartOptions.colors[index]}
-                borderRadius="50%"
-                me="4px"
-              />
-              <Text
-                fontSize="xs"
-                color="secondaryGray.600"
-                fontWeight="700"
-                mb="5px"
-              >
-                {pieChartOptions.labels[index]}
-              </Text>
-            </Flex>
-            <Text fontSize="lg" color={textColor} fontWeight="700">
-              {percentage}%
-            </Text>
-          </Flex>
+        <option value="daily">Daily</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </Select>
+      <Box height="300px" display="flex" justifyContent="center">
+        <Box width="300px">
+          <Pie data={data} options={options} />
+        </Box>
+      </Box>
+      {/* Dodatkowe informacje */}
+      <Box mt="4">
+        {data.labels.map((label, index) => (
+          <Text key={label} fontSize="sm">
+            <Box
+              as="span"
+              mr="4"
+              display="inline-block"
+              w="10px"
+              h="10px"
+              borderRadius="50%"
+              bg={data.datasets[0].backgroundColor[index]}
+            />
+            {label}: {data.datasets[0].data[index]}
+          </Text>
         ))}
-      </Card>
+      </Box>
     </Card>
   );
-}
+};
+
+export default Portfolio;
