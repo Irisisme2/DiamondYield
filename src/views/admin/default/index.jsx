@@ -1,8 +1,3 @@
-// Horizon UI - v1.1.0
-// Product Page: https://www.horizon-ui.com/
-// Copyright 2023 Horizon UI (https://www.horizon-ui.com/)
-// Designed and Coded by Simmmple
-
 import {
   Avatar,
   Box,
@@ -24,12 +19,77 @@ import Liquidity from "views/admin/default/components/Liquidity";
 import Staking from "views/admin/default/components/Staking";
 import Earnings from "views/admin/default/components/WeeklyRevenue";
 import TopPerformingAssets from "views/admin/default/components/TopPerformingAssets";
-
 import axios from 'axios';
+import { ethers } from 'ethers'; // Import ethers
 
 export default function UserReports() {
   const brandColor = useColorModeValue('brand.500', 'white');
   const boxBg = useColorModeValue('secondaryGray.300', 'whiteAlpha.100');
+
+  // Stan do przechowywania wartości aktywów
+  const [totalAssetValue, setTotalAssetValue] = useState(null);
+  const [earningsSummary, setEarningsSummary] = useState(null);
+  const [yieldFarmingROI, setYieldFarmingROI] = useState(null);
+  const [stakingRewards, setStakingRewards] = useState(null);
+  const [historicalPerformance, setHistoricalPerformance] = useState(null);
+  const [securityLevel, setSecurityLevel] = useState(null);
+
+  // Efekt pobierający dane z API Diamante
+  useEffect(() => {
+    // Funkcja do pobierania wartości aktywów z API Diamante
+    const fetchAssetValue = async () => {
+      try {
+        // Przykładowe zapytanie GET do API Diamante (dostosuj do swojego API)
+        const response = await axios.get('https://your-diamante-api.com/asset-value');
+
+        // Pobranie danych z odpowiedzi API
+        const data = response.data;
+
+        // Ustawienie danych w stanie komponentu
+        setTotalAssetValue(data.totalAssetValue);
+        setEarningsSummary(data.earningsSummary);
+        setYieldFarmingROI(data.yieldFarmingROI);
+        setStakingRewards(data.stakingRewards);
+        setHistoricalPerformance(data.historicalPerformance);
+        setSecurityLevel(data.securityLevel);
+      } catch (error) {
+        console.error('Error fetching asset values:', error);
+      }
+    };
+
+    // Wywołanie funkcji do pobierania danych po zamontowaniu komponentu
+    fetchAssetValue();
+  }, []); // Pobieranie danych tylko raz po zamontowaniu komponentu
+
+  // Funkcja do sprawdzenia dostępności MetaMask
+  const checkMetaMaskAvailability = async () => {
+    // Sprawdzenie czy MetaMask jest dostępny w przeglądarce
+    if (window.ethereum) {
+      // Utworzenie nowej instancji ethers.providers.Web3Provider
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+      try {
+        // Żądanie uprawnień od użytkownika do interfejsu Ethereum
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        // Pobranie adresu aktywnego konta
+        const accounts = await provider.listAccounts();
+        console.log('MetaMask is connected:', accounts[0]);
+        
+        // Możesz tutaj wykonać dodatkowe operacje po podłączeniu MetaMask
+        // np. wysyłanie transakcji, czytanie stanu konta itp.
+      } catch (error) {
+        console.error('User denied account access:', error);
+      }
+    } else {
+      console.error('MetaMask is not installed!');
+    }
+  };
+
+  // Wywołanie funkcji do sprawdzenia dostępności MetaMask po załadowaniu komponentu
+  useEffect(() => {
+    checkMetaMaskAvailability();
+  }, []);
 
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
@@ -42,11 +102,11 @@ export default function UserReports() {
               w='56px'
               h='56px'
               bg={boxBg}
-              icon={<Icon w='32px' h='32px' as={MdBarChart} color={brandColor} />}
+              icon={<MdBarChart size='32px' color={brandColor} />}
             />
           }
           name='Total Asset Value'
-          value='$1,234,567'
+          value={totalAssetValue ? `$${totalAssetValue}` : '$0'}
         />
 
         {/* Earnings Summary */}

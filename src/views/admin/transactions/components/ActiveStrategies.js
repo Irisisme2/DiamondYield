@@ -27,16 +27,7 @@ import {
   NumberDecrementStepper,
 } from "@chakra-ui/react";
 import Card from "components/card/Card.js";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 import Property1 from "assets/img/nfts/btc1.jpg";
 import Property2 from "assets/img/nfts/eth.png";
@@ -257,51 +248,76 @@ const ActiveStrategies = () => {
                     <Text color={textColor} fontSize="md" mb="10px">
                       <strong>Duration:</strong> {strategy.duration}
                     </Text>
-                    <Button
-                      colorScheme="blue"
-                      onClick={() => handleAdjustStrategy(strategy.id)}
-                      mb="10px"
-                    >
-                      Adjust Strategy
-                    </Button>
-                    <Button
-                      colorScheme="teal"
-                      onClick={() => handleAddToInvestment(strategy.id)}
-                      mb="10px"
-                    >
-                      Add to Investment
-                    </Button>
-                    <Flex justifyContent="space-between">
-                      {strategy.options.map((option) => (
-                        <Button key={option} variant="link" color="blue">
+                    <Flex justify="space-between">
+                      {strategy.options.map((option, index) => (
+                        <Button
+                          key={index}
+                          colorScheme="blue"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            index === 0
+                              ? handleAdjustStrategy(strategy.id)
+                              : console.log("Pause strategy")
+                          }
+                        >
                           {option}
                         </Button>
                       ))}
+                      <Button
+                        colorScheme="green"
+                        size="sm"
+                        onClick={() => handleAddToInvestment(strategy.id)}
+                      >
+                        Add to Investment
+                      </Button>
                     </Flex>
+                    {/* Dodaj wykres wewnątrz karty */}
+                    <Box mt="20px" flex="1">
+                      <Text fontSize="md" mb="10px" color={textColor} fontWeight="bold">
+                        Strategy Performance
+                      </Text>
+                      <ResponsiveContainer width="100%" height={150}>
+                        <LineChart
+                          data={strategy.performanceData}
+                          margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="#8884d8"
+                            activeDot={{ r: 8 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </Box>
                   </Card>
                 </Box>
               ))}
             </Grid>
+            
           </Box>
         </Flex>
+        
       </Grid>
 
-      {/* Modal do dodawania do inwestycji */}
+      {/* Modal do dodawania inwestycji */}
       <Modal isOpen={investmentModalOpen} onClose={() => setInvestmentModalOpen(false)}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add to Investment</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text mb="8px">Enter investment amount:</Text>
+            <Text mb="8px">Enter Investment Amount:</Text>
             <NumberInput
               value={investmentAmount}
-              onChange={(value) => setInvestmentAmount(value)}
+              onChange={(valueString) => setInvestmentAmount(valueString)}
               min={0}
-              step={100}
-              allowMouseWheel
-              size="lg"
-              mb="10px"
             >
               <NumberInputField />
               <NumberInputStepper>
@@ -310,17 +326,86 @@ const ActiveStrategies = () => {
               </NumberInputStepper>
             </NumberInput>
           </ModalBody>
-
           <ModalFooter>
             <Button colorScheme="blue" mr={3} onClick={handleInvestmentSubmit}>
-              Add Investment
+              Add
             </Button>
-            <Button variant="ghost" onClick={() => setInvestmentModalOpen(false)}>
-              Cancel
-            </Button>
+            <Button onClick={() => setInvestmentModalOpen(false)}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Modal do dostosowywania strategii */}
+      <Modal isOpen={adjustModalOpen} onClose={() => setAdjustModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Adjust Strategy</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text mb="8px">Risk Level: {adjustments.riskLevel}</Text>
+            <Slider
+              aria-label="risk-level-slider"
+              defaultValue={adjustments.riskLevel}
+              min={1}
+              max={10}
+              step={1}
+              onChange={(value) => handleSliderChange(value, "riskLevel")}
+            >
+              <SliderTrack>
+                <SliderFilledTrack bg="blue.300" />
+              </SliderTrack>
+              <SliderThumb boxSize={6} />
+            </Slider>
+
+            <Text mt="16px" mb="8px">Investment Duration: {adjustments.duration} months</Text>
+            <Slider
+              aria-label="duration-slider"
+              defaultValue={adjustments.duration}
+              min={1}
+              max={12}
+              step={1}
+              onChange={(value) => handleSliderChange(value, "duration")}
+            >
+              <SliderTrack>
+                <SliderFilledTrack bg="blue.300" />
+              </SliderTrack>
+              <SliderThumb boxSize={6} />
+            </Slider>
+
+            <Text mt="16px" mb="8px">Auto Reinvest: </Text>
+            <Checkbox
+              isChecked={adjustments.autoReinvest}
+              onChange={(e) => handleSliderChange(e.target.checked, "autoReinvest")}
+            >
+              Auto Reinvest
+            </Checkbox>
+
+            <Text mt="16px" mb="8px">Diversify: </Text>
+            <CheckboxGroup
+              colorScheme="blue"
+              value={adjustments.diversify}
+              onChange={handleCheckboxChange}
+            >
+              <VStack alignItems="start">
+                <Checkbox value="BTC">BTC</Checkbox>
+                <Checkbox value="ETH">ETH</Checkbox>
+                <Checkbox value="ADA">ADA</Checkbox>
+                <Checkbox value="DOT">DOT</Checkbox>
+                <Checkbox value="BNB">BNB</Checkbox>
+                <Checkbox value="SOL">SOL</Checkbox>
+              </VStack>
+            </CheckboxGroup>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={handleSubmitAdjustments}>
+              Save
+            </Button>
+            <Button onClick={() => setAdjustModalOpen(false)}>Cancel</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
     </Box>
   );
 };
